@@ -1,20 +1,27 @@
 var express = require('express');
 var app = express();
 var PORT = process.env.PORT || 3000;
+var todos = [{
+    id: 1,
+    description: 'Meet mom for lunch',
+    completed: false
+}, {
+    id: 2,
+    description: 'Go to market',
+    completed: true
+}];
 
-var middleware = require('./middleware.js');
-
-app.use(middleware.logger);
-
-app.get('/', function (req, response) {
-    response.send('Hello Express!');
+app.get('/', function (req, res) {
+    res.send('Todo API Root');
 });
 
-app.get('/about', function (req, response) {
-    response.send('This is my about page');
+// GET /todos
+app.get('/todos', function (req, res) {
+    res.json(todos);
 });
 
-app.use(express.static(__dirname + '/public'));
+// GET /todos/:id
+
 app.listen(PORT, function() {
     console.log('Exprese server started at port: ' + PORT);
 });

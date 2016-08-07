@@ -21,11 +21,10 @@ app.get('/', function (req, res) {
     res.send('Todo API Root');
 });
 
-// GET /todos?completed=true
+// GET /todos?completed=true&description=work
 app.get('/todos', function (req, res) {
     var queryParams = req.query;
     var filteredTotdos = todos;
-    console.log(queryParams);
 
     if ( queryParams.hasOwnProperty('completed') ) {
         if ( queryParams.completed === 'true' ) {
@@ -33,6 +32,12 @@ app.get('/todos', function (req, res) {
         } else if ( queryParams.completed === 'false' ) {
             filteredTotdos = _.findWhere(filteredTotdos, {completed: false});
         }
+    }
+
+    if ( queryParams.hasOwnProperty('description') ) {
+        filteredTotdos = _.filter(filteredTotdos, function(obj) {
+            return -1 != obj.description.toLowerCase().indexOf(queryParams.description.toLowerCase());
+        });
     }
 
     res.json(filteredTotdos);

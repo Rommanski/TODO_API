@@ -24,24 +24,30 @@ app.get('/', function (req, res) {
 
 // GET /todos?completed=true&description=work
 app.get('/todos', function (req, res) {
-    var queryParams = req.query;
-    var filteredTotdos = todos;
+    var query = req.query;
+    var where = {};
 
-    if ( queryParams.hasOwnProperty('completed') ) {
-        if ( queryParams.completed === 'true' ) {
-            filteredTotdos = _.findWhere(filteredTotdos, {completed: true});
-        } else if ( queryParams.completed === 'false' ) {
-            filteredTotdos = _.findWhere(filteredTotdos, {completed: false});
+    if ( query.hasOwnProperty('completed') ) {
+        if ( 'true' === query.completed ) {
+            where.completed = true;
+        }
+
+        if ( 'false' === query.completed ) {
+            where.completed = false;
         }
     }
 
-    if ( queryParams.hasOwnProperty('description') ) {
-        filteredTotdos = _.filter(filteredTotdos, function(obj) {
-            return -1 != obj.description.toLowerCase().indexOf(queryParams.description.toLowerCase());
-        });
+    if ( query.hasOwnProperty('description') ) {
+        where.description = {
+                $like : '%' + query.description + '%'
+        };
     }
 
-    res.json(filteredTotdos);
+    db.todo.findAll({where: where}).then(function(todos) {
+        res.json(todos);
+    }, function(e) {
+        res.status(500).send();
+    });
 });
 
 // GET /todos/:id

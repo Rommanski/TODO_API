@@ -4,7 +4,7 @@ var sequalize;
 
 if ( 'production' === env ) {
     sequelize = new Sequelize(process.env.DATABASE_URL, {
-        'dialect' : 'postgress',
+        'dialect' : 'postgres',
     });
 } else {
     sequelize = new Sequelize(undefined, undefined, undefined, {

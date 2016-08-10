@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var bcrypt = require('bcrypt');
 var db = require('./db.js');
 
 var app = express();
@@ -136,6 +137,32 @@ app.post('/users', function(req, res) {
     }, function(e) {
         res.status(400).json(e);
     });
+});
+
+// POST /users/login
+app.post('/users/login', function(req, res) {
+    var body = _.pick(req.body, 'email', 'password');
+    if ( !_.isString(body.email) || !_.isString(body.password) ) {
+        res.status(400).send();
+    }
+
+    db.user.findOne( {
+        where : {
+            email : body.email
+        }
+    } ).then( function(user) {
+        if ( !!user ) {
+            if (bcrypt.compareSync(body.password, user.password_hash ) ) {
+                res.json(user.toPublicJSON());
+            } else {
+                res.status(401).json({error : "Incorrect email or password"});
+            }
+        } else {
+            res.status(401).json({error : "Incorrect email or password"});
+        }
+    }, function(e) {
+        res.status(500).json(e);
+    } );
 });
 
 db.sequelize.sync().then( function() {

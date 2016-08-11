@@ -142,30 +142,15 @@ app.post('/users', function(req, res) {
 // POST /users/login
 app.post('/users/login', function(req, res) {
     var body = _.pick(req.body, 'email', 'password');
-    if ( !_.isString(body.email) || !_.isString(body.password) ) {
-        res.status(400).send();
-    }
 
-    db.user.findOne( {
-        where : {
-            email : body.email
-        }
-    } ).then( function(user) {
-        if ( !!user ) {
-            if (bcrypt.compareSync(body.password, user.password_hash ) ) {
-                res.json(user.toPublicJSON());
-            } else {
-                res.status(401).json({error : "Incorrect email or password"});
-            }
-        } else {
-            res.status(401).json({error : "Incorrect email or password"});
-        }
-    }, function(e) {
-        res.status(500).json(e);
+    db.user.authentificate(body).then( function (user) {
+        res.json(user.toPublicJSON());
+    }, function () {
+        res.status(401).send();
     } );
 });
 
-db.sequelize.sync().then( function() {
+db.sequelize.sync({force : true}).then( function() {
     app.listen(PORT, function() {
         console.log('Exprese server started at port: ' + PORT);
     });

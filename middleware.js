@@ -1,15 +1,28 @@
-module.exports = function(db) {
+var cryptojs = require('crypto-js');
 
+module.exports = function(db) {
     return {
-        requireAuthentification : function(req, res, next) {
-            var token = req.get('Auth');
-            db.user.findByToken(token).then( function(user) {
-                req.user = user;
-                next();
-            }, function() {
-                console.log("reject");
-                res.status(401).send();
-            } );
-        }
-    };
+		requireAuthentification: function (req, res, next) {
+			var token = req.get('Auth') || '';
+
+			db.token.findOne({
+				where: {
+					hash: cryptojs.MD5(token).toString()
+				}
+			}).then(function (tokenInstance) {
+				if (!tokenInstance) {
+                    throw new Error();
+					// res.status(401).send();
+				}
+
+				req.token = tokenInstance;
+				return db.user.findByToken(token);
+			}).then(function (user) {
+				req.user = user;
+				next();
+			}).catch(function (e) {
+				res.status(401).send();
+			});
+		}
+	};
 };

@@ -12,7 +12,6 @@ module.exports = function(db) {
 			}).then(function (tokenInstance) {
 				if (!tokenInstance) {
                     throw new Error();
-					// res.status(401).send();
 				}
 
 				req.token = tokenInstance;

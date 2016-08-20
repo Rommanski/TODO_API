@@ -18,7 +18,7 @@ var todos = [{
 }];
 var nextId = 3;
 
-app.use('/documentation', express.static('doc'));
+app.use('/documentation', express.static(__dirname + '/doc'));
 app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
